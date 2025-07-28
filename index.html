@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown Viewer with LaTeX</title>
+    <title>Markdown Viewer</title>
     
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked@5.1.1/marked.min.js"></script>
@@ -37,207 +37,376 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #19171b 0%, #252628 100%);
             height: 100vh;
             overflow: hidden;
+            margin: 0;
         }
 
         .header {
-            background-color: #2c3e50;
+            background: linear-gradient(135deg, #d29f22 0%, #19171b 100%);
             color: white;
-            padding: 1rem;
+            padding: 0.8rem 1.5rem;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
         }
 
         .header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .header p {
-            opacity: 0.8;
-            font-size: 0.9rem;
+            font-size: 1.4rem;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: -0.5px;
         }
 
         .container {
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 120px);
+            height: calc(100vh - 70px);
+            margin: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 1px solid #d29f22;
         }
 
         .control-bar {
-            background-color: #34495e;
-            color: white;
-            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #252628 0%, #19171b 100%);
+            color: #d29f22;
+            padding: 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-bottom: 2px solid #d29f22;
+            backdrop-filter: blur(10px);
         }
 
         .control-title {
-            font-weight: bold;
-            font-size: 0.9rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #d29f22;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-title::before {
+            content: "✎";
+            font-size: 1.1rem;
+            color: #d29f22;
         }
 
         .control-buttons {
             display: flex;
-            gap: 0.5rem;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .main-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .debug-section {
+            margin-left: 1rem;
+            padding-left: 1rem;
+            border-left: 1px solid #d29f22;
         }
 
         .control-btn {
-            background-color: #3498db;
+            background: linear-gradient(135deg, #d29f22 0%, #19171b 100%);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 0.8rem;
-            transition: background-color 0.3s ease;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(210,159,34,0.3);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #d29f22;
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .control-btn:hover::before {
+            left: 100%;
         }
 
         .control-btn:hover {
-            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(210,159,34,0.4);
+            background: linear-gradient(135deg, #d29f22 0%, #5d0018 100%);
         }
 
         .control-btn.active {
-            background-color: #27ae60;
+            background: linear-gradient(135deg, #5d0018 0%, #d29f22 100%);
+            box-shadow: 0 4px 15px rgba(93,0,24,0.4);
+            border: 1px solid #5d0018;
         }
 
         .content-area {
             flex: 1;
             background-color: white;
             overflow: hidden;
+            position: relative;
         }
 
         .input-area {
             width: 100%;
             height: 100%;
             border: none;
-            padding: 1rem;
-            font-family: 'Courier New', monospace;
+            padding: 2rem;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
             resize: none;
             outline: none;
-            background-color: #fafafa;
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
             box-sizing: border-box;
+            transition: all 0.3s ease;
+            color: #252628;
+        }
+
+        .input-area:focus {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            box-shadow: inset 0 0 0 2px rgba(210,159,34,0.3);
         }
 
         .preview-area {
             width: 100%;
             height: 100%;
-            padding: 1rem;
+            padding: 2rem;
             overflow-y: auto;
-            line-height: 1.6;
+            line-height: 1.7;
             box-sizing: border-box;
             display: none;
+            background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
         }
 
         .preview-area.active {
             display: block;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modern Markdown content styling */
         .preview-area h1, .preview-area h2, .preview-area h3,
         .preview-area h4, .preview-area h5, .preview-area h6 {
-            margin: 1rem 0 0.5rem 0;
-            color: #2c3e50;
+            margin: 1.5rem 0 0.8rem 0;
+            color: #1f2937;
+            font-weight: 600;
         }
 
         .preview-area h1 {
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 0.3rem;
+            border-bottom: 3px solid #d29f22;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            color: #19171b;
         }
 
         .preview-area h2 {
-            border-bottom: 1px solid #bdc3c7;
-            padding-bottom: 0.2rem;
+            border-bottom: 2px solid #d29f22;
+            padding-bottom: 0.3rem;
+            margin-top: 2rem;
+            font-size: 1.6rem;
+            color: #252628;
+        }
+
+        .preview-area h3 {
+            color: #5d0018;
+            margin-top: 1.5rem;
+            font-size: 1.3rem;
         }
 
         .preview-area p {
-            margin: 0.5rem 0;
+            margin: 1.2rem 0;
+            color: #374151;
+            text-align: justify;
+            line-height: 1.7;
         }
 
         .preview-area ul, .preview-area ol {
-            margin: 0.5rem 0;
-            padding-left: 2rem;
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .preview-area li {
+            margin-bottom: 0.5rem;
+            color: #374151;
         }
 
         .preview-area blockquote {
-            border-left: 4px solid #3498db;
-            margin: 1rem 0;
-            padding: 0.5rem 1rem;
-            background-color: #f8f9fa;
+            border-left: 4px solid #d29f22;
+            margin: 1.5rem 0;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(to right, rgba(210, 159, 34, 0.1), rgba(210, 159, 34, 0.05));
+            border-radius: 0 8px 8px 0;
             font-style: italic;
+            color: #252628;
         }
 
         .preview-area code {
-            background-color: #f1f2f6;
+            background: linear-gradient(to right, #d29f22, #f4d03f);
+            color: #19171b;
             padding: 0.2rem 0.4rem;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', monospace;
             font-size: 0.9em;
+            border: 1px solid #d29f22;
+            font-weight: 600;
         }
 
         .preview-area pre {
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-radius: 5px;
+            background: linear-gradient(135deg, #19171b 0%, #252628 100%) !important;
+            color: #d29f22 !important;
+            padding: 1.5rem;
+            border-radius: 12px;
             overflow-x: auto;
-            margin: 1rem 0;
-            border: 1px solid #e1e8ed;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            border: 2px solid #d29f22;
         }
 
         .preview-area pre code {
-            background-color: transparent;
+            background: none !important;
+            color: #d29f22 !important;
             padding: 0;
+            border-radius: 0;
+            border: none;
+            font-size: 0.9em;
+            font-weight: 400;
+        }
+
+        /* Override Highlight.js colors for better contrast */
+        .preview-area pre code * {
+            color: #d29f22 !important;
+        }
+
+        .preview-area pre .hljs-keyword {
+            color: #5d0018 !important;
+            font-weight: 600;
+        }
+
+        .preview-area pre .hljs-string {
+            color: #ffffff !important;
+        }
+
+        .preview-area pre .hljs-function {
+            color: #d29f22 !important;
+            font-weight: 600;
+        }
+
+        .preview-area pre .hljs-comment {
+            color: #999999 !important;
+            font-style: italic;
+        }
+
+        .preview-area pre .hljs-number {
+            color: #5d0018 !important;
         }
 
         .preview-area table {
-            border-collapse: collapse;
             width: 100%;
-            margin: 1rem 0;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         }
 
         .preview-area th, .preview-area td {
-            border: 1px solid #ddd;
-            padding: 0.5rem;
+            padding: 0.8rem;
             text-align: left;
         }
 
         .preview-area th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+            background: linear-gradient(to right, #d29f22, #f4d03f);
+            font-weight: 600;
+            color: #19171b;
+            border-bottom: 2px solid #5d0018;
         }
 
-        .sample-button {
+        .preview-area td {
+            border-bottom: 1px solid #d29f22;
+            color: #252628;
+        }
+
+        .preview-area tr:hover {
+            background: linear-gradient(to right, rgba(210, 159, 34, 0.1), rgba(244, 208, 63, 0.1));
+        }
+
+        .shortcuts-info {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            display: none;
+            bottom: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
         }
 
-        .sample-button:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        .shortcuts-info .shortcut {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .shortcuts-info .shortcut:last-child {
+            margin-bottom: 0;
+        }
+
+        .shortcuts-info .key {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 3px;
+            padding: 0.1rem 0.3rem;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #374151;
         }
 
         @media (max-width: 768px) {
             .control-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-end;
+            }
+            
+            .main-buttons {
                 gap: 0.25rem;
+            }
+            
+            .debug-section {
+                margin-left: 0;
+                padding-left: 0;
+                border-left: none;
+                margin-top: 0.5rem;
             }
             
             .control-btn {
@@ -248,22 +417,32 @@
             .control-title {
                 font-size: 0.8rem;
             }
+
+            .shortcuts-info {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                font-size: 0.7rem;
+                padding: 0.5rem 0.75rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>📝 Markdown Viewer with LaTeX</h1>
-        <p>Markdownテキストと数式をリアルタイムでプレビューできます</p>
+        <h1>Markdown Viewer</h1>
     </div>
 
     <div class="container">
         <div class="control-bar">
-            <div class="control-title" id="mode-title">📝 Markdown入力モード</div>
+            <div class="control-title" id="mode-title">入力モード</div>
             <div class="control-buttons">
-                <button class="control-btn active" id="edit-btn" onclick="switchToEdit()">✏️ 編集</button>
-                <button class="control-btn" id="view-btn" onclick="switchToView()">�️ プレビュー</button>
-                <button class="control-btn" onclick="loadSample()">📄 サンプル</button>
+                <div class="main-buttons">
+                    <button class="control-btn active" id="edit-btn" onclick="switchToEdit()">編集</button>
+                    <button class="control-btn" id="view-btn" onclick="switchToView()">プレビュー</button>
+                </div>
+                <div class="debug-section">
+                    <button class="control-btn" onclick="loadSample()">サンプル</button>
+                </div>
             </div>
         </div>
 
@@ -282,9 +461,23 @@
 数式: $x = \frac{-b \pm \sqrt{b^2-4ac}}{2a}$
 
 ブロック数式:
-$$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$"></textarea>
+$$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
+
+行列 (改行は \\ だけでOK):
+$$\begin{pmatrix}
+a & b \\
+c & d
+\end{pmatrix}$$"></textarea>
             
             <div class="preview-area" id="preview"></div>
+        </div>
+    </div>
+
+    <!-- Shortcuts Information -->
+    <div class="shortcuts-info">
+        <div class="shortcut">
+            <span class="key">Ctrl/Cmd</span> + <span class="key">Shift</span> + <span class="key">P</span>
+            <span>プレビュー切り替え</span>
         </div>
     </div>
 
@@ -312,7 +505,16 @@ $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$"></textarea>
         let isEditMode = true;
 
         function updatePreview() {
-            const markdownText = input.value;
+            let markdownText = input.value;
+            
+            // Convert LaTeX matrix line breaks: \\ -> \\\\
+            // Only convert within math environments (between $$ and $$)
+            markdownText = markdownText.replace(/\$\$([\s\S]*?)\$\$/g, function(match, mathContent) {
+                // Replace \\ with \\\\ only within math blocks, but avoid already escaped ones
+                const convertedMath = mathContent.replace(/(?<!\\)\\\\(?!\\)/g, '\\\\\\\\');
+                return '$$' + convertedMath + '$$';
+            });
+            
             const htmlContent = marked.parse(markdownText);
             preview.innerHTML = htmlContent;
             
@@ -331,7 +533,7 @@ $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$"></textarea>
                 preview.classList.remove('active');
                 editBtn.classList.add('active');
                 viewBtn.classList.remove('active');
-                modeTitle.textContent = '📝 Markdown入力モード';
+                modeTitle.textContent = '入力モード';
                 input.focus();
             }
         }
@@ -344,20 +546,22 @@ $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$"></textarea>
                 preview.classList.add('active');
                 editBtn.classList.remove('active');
                 viewBtn.classList.add('active');
-                modeTitle.textContent = '👁️ プレビューモード';
+                modeTitle.textContent = 'プレビューモード';
             }
         }
 
         // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
             // Ctrl/Cmd + Shift + P for preview
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
                 e.preventDefault();
+                e.stopPropagation();
                 if (isEditMode) {
                     switchToView();
                 } else {
                     switchToEdit();
                 }
+                return false;
             }
         });
 
@@ -414,7 +618,9 @@ $$e^{i\\pi} + 1 = 0$$
 **ガウス積分:**
 $$\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}$$
 
-**行列:**
+**行列の例:**
+
+基本的な2×2行列の掛け算:
 $$\\begin{pmatrix}
 a & b \\\\
 c & d
@@ -422,12 +628,46 @@ c & d
 \\begin{pmatrix}
 x \\\\
 y
-\\end{pmatrix}
-=
+\\end{pmatrix} =
 \\begin{pmatrix}
 ax + by \\\\
 cx + dy
 \\end{pmatrix}$$
+
+単位行列:
+$$I = \\begin{pmatrix}
+1 & 0 & 0 \\\\
+0 & 1 & 0 \\\\
+0 & 0 & 1
+\\end{pmatrix}$$
+
+行列式:
+$$\\det(A) = \\begin{vmatrix}
+a & b \\\\
+c & d
+\\end{vmatrix} = ad - bc$$
+
+逆行列:
+$$A^{-1} = \\frac{1}{\\det(A)}\\begin{pmatrix}
+d & -b \\\\
+-c & a
+\\end{pmatrix}$$
+
+転置行列:
+$$A^T = \\begin{pmatrix}
+a & c \\\\
+b & d
+\\end{pmatrix}$$
+
+固有値問題:
+$$A\\mathbf{v} = \\lambda\\mathbf{v}$$
+
+拡張行列（連立方程式）:
+$$\\left(\\begin{array}{ccc|c}
+2 & 1 & -1 & 8 \\\\
+-3 & -1 & 2 & -11 \\\\
+-2 & 1 & 2 & -3
+\\end{array}\\right)$$
 
 **微積分:**
 $$\\frac{d}{dx}\\int_a^x f(t)dt = f(x)$$
@@ -453,7 +693,7 @@ $$\\begin{align}
 
 ---
 
-💡 **ヒント:** 
+ヒント: 
 - Ctrl/Cmd + Shift + P でプレビューと編集モードを切り替えできます
 - 編集ボタンで入力に戻れます
 - プレビューボタンで表示を確認できます
