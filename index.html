@@ -63,27 +63,59 @@
 
         .container {
             display: flex;
+            flex-direction: column;
             height: calc(100vh - 120px);
         }
 
-        .input-section {
-            flex: 1;
-            background-color: white;
-            border-right: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-header {
+        .control-bar {
             background-color: #34495e;
             color: white;
             padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .control-title {
             font-weight: bold;
             font-size: 0.9rem;
         }
 
-        .input-area {
+        .control-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .control-btn.active {
+            background-color: #27ae60;
+        }
+
+        .content-area {
             flex: 1;
+            background-color: white;
+            overflow: hidden;
+        }
+
+        .input-area {
+            width: 100%;
+            height: 100%;
             border: none;
             padding: 1rem;
             font-family: 'Courier New', monospace;
@@ -92,28 +124,21 @@
             resize: none;
             outline: none;
             background-color: #fafafa;
-        }
-
-        .preview-section {
-            flex: 1;
-            background-color: white;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .preview-header {
-            background-color: #27ae60;
-            color: white;
-            padding: 0.75rem 1rem;
-            font-weight: bold;
-            font-size: 0.9rem;
+            box-sizing: border-box;
         }
 
         .preview-area {
-            flex: 1;
+            width: 100%;
+            height: 100%;
             padding: 1rem;
             overflow-y: auto;
             line-height: 1.6;
+            box-sizing: border-box;
+            display: none;
+        }
+
+        .preview-area.active {
+            display: block;
         }
 
         .preview-area h1, .preview-area h2, .preview-area h3,
@@ -201,6 +226,7 @@
             font-weight: bold;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
+            display: none;
         }
 
         .sample-button:hover {
@@ -210,13 +236,17 @@
         }
 
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
+            .control-buttons {
+                gap: 0.25rem;
             }
             
-            .input-section, .preview-section {
-                flex: 1;
-                min-height: 50vh;
+            .control-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.7rem;
+            }
+            
+            .control-title {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -228,10 +258,16 @@
     </div>
 
     <div class="container">
-        <div class="input-section">
-            <div class="input-header">
-                📝 Markdown入力
+        <div class="control-bar">
+            <div class="control-title" id="mode-title">📝 Markdown入力モード</div>
+            <div class="control-buttons">
+                <button class="control-btn active" id="edit-btn" onclick="switchToEdit()">✏️ 編集</button>
+                <button class="control-btn" id="view-btn" onclick="switchToView()">�️ プレビュー</button>
+                <button class="control-btn" onclick="loadSample()">📄 サンプル</button>
             </div>
+        </div>
+
+        <div class="content-area">
             <textarea class="input-area" id="markdown-input" placeholder="ここにMarkdownテキストを入力してください...
 
 例:
@@ -247,17 +283,10 @@
 
 ブロック数式:
 $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$"></textarea>
-        </div>
-
-        <div class="preview-section">
-            <div class="preview-header">
-                👁️ プレビュー
-            </div>
+            
             <div class="preview-area" id="preview"></div>
         </div>
     </div>
-
-    <button class="sample-button" onclick="loadSample()">📄 サンプル</button>
 
     <script>
         // Configure marked.js
@@ -276,6 +305,11 @@ $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$"></textarea>
 
         const input = document.getElementById('markdown-input');
         const preview = document.getElementById('preview');
+        const editBtn = document.getElementById('edit-btn');
+        const viewBtn = document.getElementById('view-btn');
+        const modeTitle = document.getElementById('mode-title');
+
+        let isEditMode = true;
 
         function updatePreview() {
             const markdownText = input.value;
@@ -290,8 +324,42 @@ $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$"></textarea>
             }
         }
 
-        // Real-time update
-        input.addEventListener('input', updatePreview);
+        function switchToEdit() {
+            if (!isEditMode) {
+                isEditMode = true;
+                input.style.display = 'block';
+                preview.classList.remove('active');
+                editBtn.classList.add('active');
+                viewBtn.classList.remove('active');
+                modeTitle.textContent = '📝 Markdown入力モード';
+                input.focus();
+            }
+        }
+
+        function switchToView() {
+            if (isEditMode) {
+                isEditMode = false;
+                updatePreview();
+                input.style.display = 'none';
+                preview.classList.add('active');
+                editBtn.classList.remove('active');
+                viewBtn.classList.add('active');
+                modeTitle.textContent = '👁️ プレビューモード';
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Shift + P for preview
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
+                e.preventDefault();
+                if (isEditMode) {
+                    switchToView();
+                } else {
+                    switchToEdit();
+                }
+            }
+        });
 
         // Load sample content
         function loadSample() {
@@ -382,14 +450,23 @@ $$\\begin{align}
 \\nabla \\times \\mathbf{E} &= -\\frac{\\partial \\mathbf{B}}{\\partial t} \\\\
 \\nabla \\times \\mathbf{B} &= \\mu_0\\mathbf{J} + \\mu_0\\epsilon_0\\frac{\\partial \\mathbf{E}}{\\partial t}
 \\end{align}$$
+
+---
+
+💡 **ヒント:** 
+- Ctrl/Cmd + Shift + P でプレビューと編集モードを切り替えできます
+- 編集ボタンで入力に戻れます
+- プレビューボタンで表示を確認できます
 `;
             
             input.value = sampleContent;
-            updatePreview();
+            if (!isEditMode) {
+                updatePreview();
+            }
         }
 
-        // Initial render
-        updatePreview();
+        // Initialize
+        input.focus();
     </script>
 </body>
 </html>
